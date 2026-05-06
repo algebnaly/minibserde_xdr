@@ -5,6 +5,7 @@ pub enum Error {
     InvalidValue,
     OutOfRange,
     TrailingBytes,
+    NonZeroPadding,
 }
 
 impl std::fmt::Display for Error {
@@ -15,6 +16,7 @@ impl std::fmt::Display for Error {
             Error::InvalidValue => write!(f, "Invalid value"),
             Error::OutOfRange => write!(f, "Out of range"),
             Error::TrailingBytes => write!(f, "Trailing bytes"),
+            Error::NonZeroPadding => write!(f, "Padding value is not zeros"),
         }
     }
 }
@@ -27,6 +29,7 @@ impl std::error::Error for Error {
             Error::InvalidValue => None,
             Error::OutOfRange => None,
             Error::TrailingBytes => None,
+            Error::NonZeroPadding => None,
         }
     }
 }

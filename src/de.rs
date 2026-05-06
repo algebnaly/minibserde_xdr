@@ -19,6 +19,24 @@ pub fn from_bytes<T: Decode>(bytes: &[u8]) -> Result<T, Error> {
     }
 }
 
+pub fn decode_len<T: Decode>(bytes: &[u8]) -> Result<usize, Error> {
+    let mut reader = std::io::Cursor::new(bytes);
+    let _: T = read_value(&mut reader)?;
+    Ok(reader.position() as usize)
+}
+
+fn read_pad(reader: &mut impl Read, len: usize) -> Result<(), Error> {
+    let padding = len.wrapping_neg() & 3; // the same as (4 - (len % 4)) % 4
+    if padding > 0 {
+        let mut buf = [0u8; 3];
+        reader.read_exact(&mut buf[..padding])?;
+        if buf != [0; 3] {
+            return Err(Error::NonZeroPadding);
+        }
+    }
+    Ok(())
+}
+
 pub struct XDRDecoder<R>
 where
     R: Read,
@@ -129,6 +147,7 @@ impl<R: Read> Decoder for &mut XDRDecoder<R> {
         let len = self.decode_u32()?;
         let mut buf = vec![0; len as usize];
         self.reader.read_exact(&mut buf)?;
+        read_pad(&mut self.reader, len as usize)?;
         String::from_utf8(buf).map_err(|_| Error::InvalidValue)
     }
 
@@ -136,12 +155,14 @@ impl<R: Read> Decoder for &mut XDRDecoder<R> {
         let len = self.decode_u32()?;
         let mut buf = vec![0; len as usize];
         self.reader.read_exact(&mut buf)?;
+        read_pad(&mut self.reader, len as usize)?;
         Ok(buf)
     }
 
     fn decode_byte_array<const N: usize>(self) -> Result<[u8; N], Self::Error> {
         let mut buf = [0; N];
         self.reader.read_exact(&mut buf)?;
+        read_pad(&mut self.reader, N)?;
         Ok(buf)
     }
 
@@ -178,9 +199,54 @@ impl<R: Read> Decoder for &mut XDRDecoder<R> {
 impl<R: Read> EnumDecoder for &mut XDRDecoder<R> {
     type Error = Error;
 
+    fn decode_discriminant_u8(&mut self) -> Result<u8, Self::Error> {
+        self.decode_u8()
+    }
+
+    fn decode_discriminant_u16(&mut self) -> Result<u16, Self::Error> {
+        self.decode_u16()
+    }
+
     fn decode_discriminant_u32(&mut self) -> Result<u32, Self::Error> {
         self.decode_u32()
     }
+
+    fn decode_discriminant_u64(&mut self) -> Result<u64, Self::Error> {
+        self.decode_u64()
+    }
+
+    fn decode_discriminant_u128(&mut self) -> Result<u128, Self::Error> {
+        self.decode_u128()
+    }
+
+    fn decode_discriminant_usize(&mut self) -> Result<usize, Self::Error> {
+        self.decode_u32().map(|v| v as usize)
+    }
+
+    fn decode_discriminant_i8(&mut self) -> Result<i8, Self::Error> {
+        self.decode_i8()
+    }
+
+    fn decode_discriminant_i16(&mut self) -> Result<i16, Self::Error> {
+        self.decode_i16()
+    }
+
+    fn decode_discriminant_i32(&mut self) -> Result<i32, Self::Error> {
+        self.decode_i32()
+    }
+
+    fn decode_discriminant_i64(&mut self) -> Result<i64, Self::Error> {
+        self.decode_i64()
+    }
+
+    fn decode_discriminant_i128(&mut self) -> Result<i128, Self::Error> {
+        self.decode_i128()
+    }
+
+    fn decode_discriminant_isize(&mut self) -> Result<isize, Self::Error> {
+        self.decode_i32().map(|v| v as isize)
+    }
+
     fn decode_field<T: Decode>(&mut self) -> Result<T, Self::Error> {
         T::decode(&mut **self)
     }

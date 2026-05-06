@@ -11,6 +11,12 @@ pub fn write_value<T: Encode>(value: &T, writer: &mut impl Write) -> Result<(), 
     value.encode(&mut encoder)
 }
 
+pub fn to_bytes<T: Encode>(value: &T) -> Result<Vec<u8>, Error> {
+    let mut buf = Vec::new();
+    write_value(value, &mut buf)?;
+    Ok(buf)
+}
+
 pub struct XDREncoder<W>
 where
     W: Write,
@@ -31,7 +37,7 @@ where
     }
 }
 
-fn pad(writer: &mut impl Write, len: usize) -> Result<(), std::io::Error> {
+fn write_pad(writer: &mut impl Write, len: usize) -> Result<(), Error> {
     let padding = len.wrapping_neg() & 3; // the same as (4 - (len % 4)) % 4
     if padding > 0 {
         writer.write_all(&[0u8; 3][..padding])?;
@@ -122,7 +128,7 @@ where
         let len = value.len() as u32;
         self.writer.write_all(&len.to_be_bytes())?;
         self.writer.write_all(value)?;
-        pad(&mut self.writer, value.len())?;
+        write_pad(&mut self.writer, value.len())?;
         Ok(())
     }
 
@@ -132,7 +138,7 @@ where
 
     fn encode_byte_array<const N: usize>(self, value: &[u8; N]) -> Result<(), Self::Error> {
         self.writer.write_all(value)?;
-        pad(&mut self.writer, N)?;
+        write_pad(&mut self.writer, N)?;
         Ok(())
     }
 
@@ -170,12 +176,18 @@ where
         value: &T,
     ) -> Result<(), Self::Error> {
         match discriminant {
-            Discriminant::U32(discriminant) => self.encode_u32(discriminant)?,
-            _ => {
-                return Err(Error::Custom(
-                    "only u32 discriminant are supported in XDR".to_string(),
-                ));
-            }
+            Discriminant::U8(d) => self.encode_u8(d)?,
+            Discriminant::U16(d) => self.encode_u16(d)?,
+            Discriminant::U32(d) => self.encode_u32(d)?,
+            Discriminant::U64(d) => self.encode_u64(d)?,
+            Discriminant::U128(d) => self.encode_u128(d)?,
+            Discriminant::USize(d) => self.encode_u32(d as u32)?,
+            Discriminant::I8(d) => self.encode_i8(d)?,
+            Discriminant::I16(d) => self.encode_i16(d)?,
+            Discriminant::I32(d) => self.encode_i32(d)?,
+            Discriminant::I64(d) => self.encode_i64(d)?,
+            Discriminant::I128(d) => self.encode_i128(d)?,
+            Discriminant::ISize(d) => self.encode_i32(d as i32)?,
         }
         value.encode(self)?;
         Ok(())
