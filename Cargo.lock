@@ -3,31 +3,37 @@
 version = 4
 
 [[package]]
-name = "binserde"
+name = "binserde_xdr"
 version = "0.1.0"
 dependencies = [
- "binserde-core",
- "binserde-derive",
+ "minibserde",
 ]
 
 [[package]]
-name = "binserde-core"
+name = "minibserde"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d894aa17a62d75796f56d2ce7d857138352f1fc512b110f698bc6923db3fd3d"
+dependencies = [
+ "minibserde-core",
+ "minibserde-derive",
+]
 
 [[package]]
-name = "binserde-derive"
+name = "minibserde-core"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "827ca7938aed65190c9a951f863fde11b3a1aea81bfcaaa6bf0ee703ed0711bb"
+
+[[package]]
+name = "minibserde-derive"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0d239cbb4954dc7a25edb57302785444a2fe1ab516e0d02ea7327521702c054"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "binserde_xdr"
-version = "0.1.0"
-dependencies = [
- "binserde",
 ]
 
 [[package]]

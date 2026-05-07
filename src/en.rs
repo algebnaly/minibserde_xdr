@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use binserde::{
+use minibserde::{
     Discriminant, Encode, Encoder, MapEncoder, SeqEncoder, StructEncoder, TupleEncoder,
 };
 
@@ -142,7 +142,7 @@ where
         Ok(())
     }
 
-    fn encode_option<T: binserde::Encode>(self, value: Option<&T>) -> Result<(), Self::Error> {
+    fn encode_option<T: minibserde::Encode>(self, value: Option<&T>) -> Result<(), Self::Error> {
         if let Some(value) = value {
             self.encode_u32(1)?;
             value.encode(self)?;
@@ -170,9 +170,9 @@ where
         Ok(self)
     }
 
-    fn encode_variant<T: binserde::Encode>(
+    fn encode_variant<T: minibserde::Encode>(
         self,
-        discriminant: binserde::Discriminant,
+        discriminant: minibserde::Discriminant,
         value: &T,
     ) -> Result<(), Self::Error> {
         match discriminant {
@@ -199,11 +199,11 @@ where
     W: Write,
 {
     type Error = Error;
-    fn encode_key<K: binserde::Encode>(&mut self, key: &K) -> Result<(), Self::Error> {
+    fn encode_key<K: minibserde::Encode>(&mut self, key: &K) -> Result<(), Self::Error> {
         key.encode(&mut **self)
     }
 
-    fn encode_value<V: binserde::Encode>(&mut self, value: &V) -> Result<(), Self::Error> {
+    fn encode_value<V: minibserde::Encode>(&mut self, value: &V) -> Result<(), Self::Error> {
         value.encode(&mut **self)
     }
 
@@ -217,7 +217,7 @@ where
     W: Write,
 {
     type Error = Error;
-    fn encode_element<T: binserde::Encode>(&mut self, element: &T) -> Result<(), Self::Error> {
+    fn encode_element<T: minibserde::Encode>(&mut self, element: &T) -> Result<(), Self::Error> {
         element.encode(&mut **self)
     }
     fn end(&mut self) -> Result<(), Self::Error> {
@@ -230,7 +230,7 @@ where
     W: Write,
 {
     type Error = Error;
-    fn encode_field<T: binserde::Encode>(&mut self, value: &T) -> Result<(), Self::Error> {
+    fn encode_field<T: minibserde::Encode>(&mut self, value: &T) -> Result<(), Self::Error> {
         value.encode(&mut **self)
     }
     fn end(&mut self) -> Result<(), Self::Error> {
@@ -243,7 +243,7 @@ where
     W: Write,
 {
     type Error = Error;
-    fn encode_element<T: binserde::Encode>(&mut self, element: &T) -> Result<(), Self::Error> {
+    fn encode_element<T: minibserde::Encode>(&mut self, element: &T) -> Result<(), Self::Error> {
         element.encode(&mut **self)
     }
     fn end(&mut self) -> Result<(), Self::Error> {
@@ -331,7 +331,7 @@ mod tests {
         enum MyEnum {
             Variant1 = 1,
             Variant2 = 16,
-            #[binserde(catch_all)]
+            #[minibserde(catch_all)]
             Variant3(u32) = 8,
         }
         let mut encoder = XDREncoder::new(Vec::new());

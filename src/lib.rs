@@ -2,8 +2,6 @@ pub mod de;
 pub mod en;
 pub mod error;
 
-use std::io::Write;
-
 pub use crate::de::{decode_len, from_bytes, read_value};
 pub use crate::en::{to_bytes, write_value};
 pub use error::Error;

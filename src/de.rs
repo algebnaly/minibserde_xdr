@@ -1,6 +1,8 @@
 use std::io::Read;
 
-use binserde::{Decode, Decoder, EnumDecoder, MapDecoder, SeqDecoder, StructDecoder, TupleDecoder};
+use minibserde::{
+    Decode, Decoder, EnumDecoder, MapDecoder, SeqDecoder, StructDecoder, TupleDecoder,
+};
 
 use crate::error::Error;
 
@@ -166,7 +168,7 @@ impl<R: Read> Decoder for &mut XDRDecoder<R> {
         Ok(buf)
     }
 
-    fn decode_option<T: binserde::Decode>(self) -> Result<Option<T>, Self::Error> {
+    fn decode_option<T: minibserde::Decode>(self) -> Result<Option<T>, Self::Error> {
         let v = self.decode_bool()?;
         if v {
             Ok(Some(T::decode(self)?))
