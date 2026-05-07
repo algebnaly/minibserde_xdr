@@ -3,13 +3,6 @@
 version = 4
 
 [[package]]
-name = "binserde_xdr"
-version = "0.1.0"
-dependencies = [
- "minibserde",
-]
-
-[[package]]
 name = "minibserde"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -34,6 +27,13 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "minibserde_xdr"
+version = "0.1.0"
+dependencies = [
+ "minibserde",
 ]
 
 [[package]]
