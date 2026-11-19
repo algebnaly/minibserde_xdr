@@ -100,19 +100,11 @@ impl<R: Read> Decoder for &mut XDRDecoder<R> {
     }
 
     fn decode_i8(self) -> Result<i8, Self::Error> {
-        let v = self.decode_u32()?;
-        if v > 0xFF {
-            return Err(Error::OutOfRange);
-        }
-        Ok(v as i8)
+        i8::try_from(self.decode_i32()?).map_err(|_| Error::OutOfRange)
     }
 
     fn decode_i16(self) -> Result<i16, Self::Error> {
-        let v = self.decode_u32()?;
-        if v > 0xFF_FF {
-            return Err(Error::OutOfRange);
-        }
-        Ok(v as i16)
+        i16::try_from(self.decode_i32()?).map_err(|_| Error::OutOfRange)
     }
 
     fn decode_i32(self) -> Result<i32, Self::Error> {

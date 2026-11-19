@@ -90,12 +90,12 @@ where
     }
 
     fn encode_i8(self, value: i8) -> Result<(), Self::Error> {
-        self.writer.write_all(&(value as u32).to_be_bytes())?;
+        self.writer.write_all(&(value as i32).to_be_bytes())?;
         Ok(())
     }
 
     fn encode_i16(self, value: i16) -> Result<(), Self::Error> {
-        self.writer.write_all(&(value as u32).to_be_bytes())?;
+        self.writer.write_all(&(value as i32).to_be_bytes())?;
         Ok(())
     }
 
